@@ -24,3 +24,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(exact_hubbard PUBLIC ${GCC_CLANG_WARNINGS} ${GCC_EXTRA_WARNINGS})
 endif ()
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+        OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(exact_hubbard PUBLIC -march=native)
+endif ()
