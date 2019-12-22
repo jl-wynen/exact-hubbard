@@ -4,14 +4,21 @@
 
 #include <array>
 #include <cassert>
+#include <type_traits>
 
 #include "config.hpp"
 
 
-enum class PH : int
+enum class PH : std::uint32_t
 {
     n=0b00, p=0b01, h=0b10, ph=0b11
 };
+
+
+constexpr auto underlying(PH const ph) noexcept
+{
+    return static_cast<std::underlying_type_t<PH>>(ph);
+}
 
 
 class State
@@ -26,17 +33,31 @@ public:
     }
 
 
-    constexpr PH &operator[](size_t const i) noexcept
+    constexpr PH &operator[](std::size_t const site) noexcept
     {
-        assert(i < sites_.size());
-        return sites_[i];
+        assert(site < sites_.size());
+        return sites_[site];
     }
 
 
-    constexpr PH operator[](size_t const i) const noexcept
+    constexpr PH operator[](std::size_t const site) const noexcept
     {
-        assert(i < sites_.size());
-        return sites_[i];
+        assert(site < sites_.size());
+        return sites_[site];
+    }
+
+
+    [[nodiscard]] constexpr bool hasParticleOn(std::size_t const site) const noexcept
+    {
+        assert(site < sites_.size());
+        return underlying(sites_[site]) & underlying(PH::p);
+    }
+
+
+    [[nodiscard]] constexpr bool hasHoleOn(std::size_t const site) const noexcept
+    {
+        assert(site < sites_.size());
+        return underlying(sites_[site]) & underlying(PH::h);
     }
 };
 
