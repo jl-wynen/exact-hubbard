@@ -23,13 +23,12 @@ std::ostream &operator<<(std::ostream &os, PH ph)
 }
 
 
-std::ostream &operator<<(std::ostream &os, State const &state)
-{
+std::ostream &operator<<(std::ostream &os, State const &state) {
     os << '|';
-    for (auto x : state.sites) {
-        os << x << ' ';
+    for (std::size_t i = 0; i + 1 < state.size(); ++i) {
+        os << state[i] << ' ';
     }
-    os << '>';
+    os << state[state.size()-1] << '>';
     return os;
 }
 

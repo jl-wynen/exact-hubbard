@@ -1,5 +1,3 @@
-#include <array>
-#include <cassert>
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -20,14 +18,14 @@ constexpr std::optional<PH> increment(PH ph) noexcept
 
 [[nodiscard]] constexpr bool increment(State &state, size_t const dim = 0) noexcept
 {
-    auto const inc = increment(state.sites[dim]);
+    auto const inc = increment(state[dim]);
     if (inc.has_value()) {
         state[dim] = *inc;
         return true;
     }
     else {
         state[dim] = PH::n;
-        if (dim == state.sites.size()-1) {
+        if (dim == state.size()-1) {
             return false;
         }
         return increment(state, dim+1);
