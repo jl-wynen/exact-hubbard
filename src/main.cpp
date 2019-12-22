@@ -39,7 +39,6 @@ std::vector<State> fockspaceBasis()
     std::vector<State> states{auxState};
 
     while (true) {
-        std::cout << auxState << '\n';
         if (not increment(auxState)) {
             break;
         }
