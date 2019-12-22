@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "state.hpp"
 #include "io.hpp"
@@ -9,8 +10,11 @@ int main()
 {
     auto fockspace = fockspaceBasis();
 
+    ParticleCreator ad{1};
+
     for (auto s : fockspace) {
-        std::cout << s << '\n';
+        auto [c, ss] = ad.apply(s);
+        std::cout << s << ' ' << std::setw(2) << c << ' ' << ss << '\n';
     }
     std::cout << fockspace.size() << '\n';
 
