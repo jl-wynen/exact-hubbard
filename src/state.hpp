@@ -5,6 +5,7 @@
 #include <array>
 #include <cassert>
 #include <type_traits>
+#include <vector>
 
 #include "config.hpp"
 
@@ -78,5 +79,8 @@ constexpr double dot(State const &a, State const &b) noexcept
     }
     return 1.0;
 }
+
+
+std::vector<State> fockspaceBasis();
 
 #endif //EXACT_HUBBARD_STATE_HPP
