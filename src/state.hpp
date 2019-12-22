@@ -22,6 +22,18 @@ constexpr auto underlying(PH const ph) noexcept
 }
 
 
+constexpr PH operator&(PH const a, PH const b) noexcept
+{
+    return PH{underlying(a) & underlying(b)};
+}
+
+
+constexpr PH operator|(PH const a, PH const b) noexcept
+{
+    return PH{underlying(a) | underlying(b)};
+}
+
+
 class State
 {
     std::array<PH, NSITES> sites_{};
@@ -51,14 +63,39 @@ public:
     [[nodiscard]] constexpr bool hasParticleOn(std::size_t const site) const noexcept
     {
         assert(site < sites_.size());
-        return underlying(sites_[site]) & underlying(PH::p);
+        return underlying(sites_[site] & PH::p) != 0;
     }
 
 
     [[nodiscard]] constexpr bool hasHoleOn(std::size_t const site) const noexcept
     {
         assert(site < sites_.size());
-        return underlying(sites_[site]) & underlying(PH::h);
+        return underlying(sites_[site] & PH::h) != 0;
+    }
+
+
+    [[nodiscard]] constexpr int numberOn(std::size_t const site) const noexcept
+    {
+        assert(site < sites_.size());
+#if defined __GNUG__
+        static_assert(std::is_same_v<std::underlying_type_t<PH>, unsigned int>);
+        return __builtin_popcount(underlying(sites_[site]));
+#else
+        return static_cast<int>(hasParticleOn(site)) + static_cast<int>(hasHoleOn(site));
+#endif
+    }
+
+
+    constexpr void addParticleOn(std::size_t const site) noexcept
+    {
+        assert(site < sites_.size());
+        sites_[site] = sites_[site] | PH::p;
+    }
+
+
+    constexpr void addHoleOn(std::size_t const site) noexcept {
+        assert(site < sites_.size());
+        sites_[site] = sites_[site] | PH::h;
     }
 };
 
