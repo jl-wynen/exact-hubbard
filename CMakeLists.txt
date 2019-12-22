@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(GCC_CLANG_WARNINGS
+        -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
+        -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual
+        -Wconversion -Wsign-conversion -Wnull-dereference
+        -Wdouble-promotion -Wformat=2)
+
+set(GCC_EXTRA_WARNINGS
+        -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches
+        -Wlogical-op -Wuseless-cast)
+
+project(exact_hubbard)
+
+add_executable(exact_hubbard)
+add_subdirectory(src)
+
+set_target_properties(exact_hubbard PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(exact_hubbard PUBLIC ${GCC_CLANG_WARNINGS})
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(exact_hubbard PUBLIC ${GCC_CLANG_WARNINGS} ${GCC_EXTRA_WARNINGS})
+endif ()
