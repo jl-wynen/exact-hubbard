@@ -46,6 +46,17 @@ class State
 
 
 public:
+    constexpr bool operator==(State const &other) const noexcept
+    {
+        for (std::size_t i = 0; i < size(); ++i) {
+            if (sites_[i] != other.sites_[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     [[nodiscard]] constexpr std::size_t size() const noexcept
     {
         return sites_.size();
