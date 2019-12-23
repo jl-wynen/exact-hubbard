@@ -116,4 +116,20 @@ struct ParticleAnnihilator : Operator<ParticleAnnihilator>
 };
 
 
+struct NumberOperator : Operator<NumberOperator>
+{
+    std::size_t site;
+
+    explicit constexpr NumberOperator(std::size_t const s) noexcept : site{s} { }
+
+
+    using Operator<NumberOperator>::apply;
+
+
+    [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
+    {
+        return {static_cast<double>(state.numberOn(site)), state};
+    }
+};
+
 #endif //EXACT_HUBBARD_OPERATOR_HPP
