@@ -135,6 +135,56 @@ struct ParticleAnnihilator : Operator<ParticleAnnihilator>
 };
 
 
+struct HoleCreator : Operator<HoleCreator>
+{
+    std::size_t site;
+
+
+    explicit constexpr HoleCreator(std::size_t const s) noexcept : site{s} { }
+
+
+    using Operator<HoleCreator>::apply;
+
+
+    [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
+    {
+        if (state.hasHoleOn(site)) {
+            return {0, {}};
+        }
+        State aux{state};
+        aux.addHoleOn(site);
+        auto const nswaps = countPHBefore(state, site) + (state.hasParticleOn(site) ? 1 : 0);
+        return {nswaps % 2 == 0 ? +1.0 : -1.0,
+                aux};
+    }
+};
+
+
+struct HoleAnnihilator : Operator<HoleAnnihilator>
+{
+    std::size_t site;
+
+
+    explicit constexpr HoleAnnihilator(std::size_t const s) noexcept : site{s} { }
+
+
+    using Operator<HoleAnnihilator>::apply;
+
+
+    [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
+    {
+        if (not state.hasHoleOn(site)) {
+            return {0, {}};
+        }
+        State aux{state};
+        aux.removeHoleOn(site);
+        auto const nswaps = countPHBefore(state, site) + (state.hasParticleOn(site) ? 1 : 0);
+        return {nswaps % 2 == 0 ? +1.0 : -1.0,
+                aux};
+    }
+};
+
+
 /**
  * (n_x - tilde{n}_x)^2
  */
