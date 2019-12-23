@@ -53,8 +53,7 @@ struct Operator
             auto const &[coef, state] = in[i];
             apply(state, out);
 
-            std::size_t outb = out.size();
-            for (; outa < outb; ++outa) {
+            for (std::size_t const outb = out.size(); outa < outb; ++outa) {
                 out[outa].first *= coef;
             }
         }
@@ -64,6 +63,8 @@ struct Operator
     [[nodiscard]] SumState apply(SumState const &states) const
     {
         SumState out;
+        // Might over allocate if fewer states are produced but that should be OK.
+        out.reserve(states.size());
         apply(states, out);
         return out;
     }
