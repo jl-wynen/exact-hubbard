@@ -32,17 +32,18 @@ namespace {
 }
 
 
-std::vector<State> fockspaceBasis()
+SumState fockspaceBasis()
 {
+    SumState basis;
     State auxState;
-    std::vector<State> states{auxState};
+    basis.push(1.0, auxState);
 
     while (true) {
         if (not increment(auxState)) {
             break;
         }
-        states.emplace_back(auxState);
+        basis.push(1.0, auxState);
     }
 
-    return states;
+    return basis;
 }

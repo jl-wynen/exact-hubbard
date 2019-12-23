@@ -8,13 +8,15 @@
 
 int main()
 {
-    auto fockspace = fockspaceBasis();
+    auto const fockspace = fockspaceBasis();
 
     ParticleCreator ad{1};
+    ParticleAnnihilator a{1};
 
-    for (auto s : fockspace) {
-        auto [c, ss] = ad.apply(s);
-        std::cout << s << ' ' << std::setw(2) << c << ' ' << ss << '\n';
+
+    for (size_t i = 0; i < fockspace.size(); ++i) {
+        auto [c, s] = fockspace[i];
+        std::cout << std::setw(2) << c << ' ' <<  s << '\n';
     }
     std::cout << fockspace.size() << '\n';
 

@@ -142,6 +142,45 @@ constexpr double dot(State const &a, State const &b) noexcept
 }
 
 
-std::vector<State> fockspaceBasis();
+class SumState
+{
+    std::vector<double> coefs_;
+    std::vector<State> states_;
+
+public:
+    void reserve(std::size_t const n)
+    {
+        coefs_.reserve(n);
+        states_.reserve(n);
+    }
+
+
+    [[nodiscard]] std::size_t size() const noexcept
+    {
+        return states_.size();
+    }
+
+
+    std::pair<double&, State&> operator[](std::size_t const i) noexcept
+    {
+        return {coefs_[i], states_[i]};
+    }
+
+
+    std::pair<double, State const&> operator[](std::size_t const i) const noexcept
+    {
+        return {coefs_[i], states_[i]};
+    }
+
+
+    void push(double const coef, State const &state)
+    {
+        states_.emplace_back(state);
+        coefs_.push_back(coef);
+    }
+};
+
+
+SumState fockspaceBasis();
 
 #endif //EXACT_HUBBARD_STATE_HPP
