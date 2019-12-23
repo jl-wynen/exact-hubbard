@@ -119,6 +119,9 @@ struct ParticleAnnihilator : Operator<ParticleAnnihilator>
 };
 
 
+/**
+ * (n_x - tilde{n}_x)^2
+ */
 struct NumberOperator : Operator<NumberOperator>
 {
     std::size_t site;
@@ -131,7 +134,8 @@ struct NumberOperator : Operator<NumberOperator>
 
     [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
     {
-        return {static_cast<double>(state.numberOn(site)), state};
+        return {(state.hasParticleOn(site) ^ state.hasHoleOn(site)) ? 1.0 : 0.0,
+                state};
     }
 };
 
