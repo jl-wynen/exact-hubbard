@@ -237,4 +237,36 @@ private:
     }
 };
 
+
+struct HoleHop : Operator<HoleHop>
+{
+    using Operator<HoleHop>::apply;
+
+
+    void apply(State const &state, SumState &out) const
+    {
+        for (auto const [a, b] : nearestNeighbours) {
+            if (state.hasHoleOn(a) and not state.hasHoleOn(b)) {
+                auto const [coef, newState] = doHop(state, a, b);
+                out.push(coef, newState);
+            }
+                // Can use else here because we can never hop to _and_ from a site.
+            else if (state.hasHoleOn(b) and not state.hasHoleOn(a)) {
+                auto const [coef, newState] = doHop(state, b, a);
+                out.push(coef, newState);
+            }
+        }
+    }
+
+
+private:
+    [[nodiscard]] std::pair<double, State>
+    doHop(State const &state, std::size_t const from, std::size_t const to) const noexcept
+    {
+        auto const [coefAnnihilate, aux] = HoleAnnihilator{from}.apply(state);
+        auto const [coefCreate, newState] = HoleCreator{to}.apply(aux);
+        return {-kappa * coefAnnihilate * coefCreate, newState};
+    }
+};
+
 #endif //EXACT_HUBBARD_OPERATOR_HPP
