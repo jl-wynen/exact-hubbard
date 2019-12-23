@@ -34,6 +34,12 @@ constexpr PH operator|(PH const a, PH const b) noexcept
 }
 
 
+constexpr PH operator~(PH const ph) noexcept
+{
+    return PH{~underlying(ph)};
+}
+
+
 class State
 {
     std::array<PH, NSITES> sites_{};
@@ -93,9 +99,22 @@ public:
     }
 
 
+    constexpr void removeParticleOn(std::size_t const site) noexcept
+    {
+        assert(site < sites_.size());
+        sites_[site] = sites_[site] &~ PH::p;
+    }
+
+
     constexpr void addHoleOn(std::size_t const site) noexcept {
         assert(site < sites_.size());
         sites_[site] = sites_[site] | PH::h;
+    }
+
+
+    constexpr void removeHoleOn(std::size_t const site) noexcept {
+        assert(site < sites_.size());
+        sites_[site] = sites_[site] &~ PH::h;
     }
 };
 
