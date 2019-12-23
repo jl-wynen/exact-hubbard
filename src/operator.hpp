@@ -35,4 +35,22 @@ struct ParticleCreator
     }
 };
 
+
+struct ParticleAnnihilator
+{
+    std::size_t site;
+
+    [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
+    {
+        if (not state.hasParticleOn(site)) {
+            return {0, {}};
+        }
+        State aux{state};
+        aux.removeParticleOn(site);
+        return {countPHBefore(state, site) % 2 == 0 ? +1.0 : -1.0,
+                aux};
+    }
+};
+
+
 #endif //EXACT_HUBBARD_OPERATOR_HPP
