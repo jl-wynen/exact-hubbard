@@ -19,9 +19,65 @@ constexpr int countPHBefore(State const &state, std::size_t const site) noexcept
 }
 
 
-struct ParticleCreator
+template <typename T>
+struct Operator
+{
+    using Derived = T;
+
+
+    [[nodiscard]] constexpr Derived &asDerived() noexcept
+    {
+        return static_cast<Derived&>(*this);
+    }
+
+
+    [[nodiscard]] constexpr Derived const &asDerived() const noexcept
+    {
+        return static_cast<Derived const&>(*this);
+    }
+
+
+    void apply(State const &state, SumState &out) const
+    {
+        auto const [c, s] = asDerived().apply(state);
+        out.push(c, s);
+    }
+
+
+    void apply(SumState const &in, SumState &out) const
+    {
+        std::size_t outa = out.size();
+        for (std::size_t i = 0; i < in.size(); ++i) {
+            auto const &[coef, state] = in[i];
+            apply(state, out);
+
+            std::size_t outb = out.size();
+            for (; outa < outb; ++outa) {
+                out[outa].first *= coef;
+            }
+        }
+    }
+
+
+    [[nodiscard]] SumState apply(SumState const &states) const
+    {
+        SumState out;
+        apply(states, out);
+        return out;
+    }
+};
+
+
+struct ParticleCreator : Operator<ParticleCreator>
 {
     std::size_t site;
+
+
+    explicit constexpr ParticleCreator(std::size_t const s) noexcept : site{s} { }
+
+
+    using Operator<ParticleCreator>::apply;
+
 
     [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
     {
@@ -36,9 +92,16 @@ struct ParticleCreator
 };
 
 
-struct ParticleAnnihilator
+struct ParticleAnnihilator : Operator<ParticleAnnihilator>
 {
     std::size_t site;
+
+
+    explicit constexpr ParticleAnnihilator(std::size_t const s) noexcept : site{s} { }
+
+
+    using Operator<ParticleAnnihilator>::apply;
+
 
     [[nodiscard]] constexpr std::pair<double, State> apply(State const &state) const noexcept
     {
