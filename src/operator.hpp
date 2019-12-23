@@ -40,7 +40,9 @@ struct Operator
     void apply(State const &state, SumState &out) const
     {
         auto const [c, s] = asDerived().apply(state);
-        out.push(c, s);
+        if (c != 0.0) {
+            out.push(c, s);
+        }
     }
 
 
