@@ -19,6 +19,15 @@ constexpr int countPHBefore(State const &state, std::size_t const site) noexcept
 }
 
 
+template <typename T, typename = void>
+struct hasSingleStateApplyWithOut : std::false_type {};
+
+template <typename T>
+struct hasSingleStateApplyWithOut<T,
+        std::void_t<decltype(std::declval<T>().apply(std::declval<SumState>(), std::declval<SumState&>()))>>
+        : std::true_type {};
+
+
 template <typename T>
 struct Operator
 {
@@ -39,9 +48,16 @@ struct Operator
 
     void apply(State const &state, SumState &out) const
     {
-        auto const [c, s] = asDerived().apply(state);
-        if (c != 0.0) {
-            out.push(c, s);
+        if constexpr (hasSingleStateApplyWithOut<Derived>::value) {
+            // use implementation provided by derived type
+            asDerived().apply(state, out);
+        }
+        else {
+            // use generic implementation
+            auto const[c, s] = asDerived().apply(state);
+            if (c != 0.0) {
+                out.push(c, s);
+            }
         }
     }
 
@@ -136,6 +152,48 @@ struct NumberOperator : Operator<NumberOperator>
     {
         return {(state.hasParticleOn(site) ^ state.hasHoleOn(site)) ? 1.0 : 0.0,
                 state};
+    }
+};
+
+
+struct ParticleHop : Operator<ParticleHop>
+{
+    using Operator<ParticleHop>::apply;
+
+
+    void apply(State const &state, SumState &out) const
+    {
+        for (auto const [a, b] : nearestNeighbours) {
+            if (state.hasParticleOn(a) and not state.hasParticleOn(b)) {
+                auto const [coef, newState] = doHop(state, a, b);
+                out.push(coef, newState);
+            }
+            // Can use else here because we can never hop to _and_ from a site.
+            else if (state.hasParticleOn(b) and not state.hasParticleOn(a)) {
+                auto const [coef, newState] = doHop(state, b, a);
+                out.push(coef, newState);
+            }
+        }
+    }
+
+
+private:
+    [[nodiscard]] std::pair<double, State>
+            doHop(State const &state, std::size_t const from, std::size_t const to) const noexcept
+    {
+        // How often does the annihilator have to swap places with another operator?
+        auto const nSwapAnnihilate = countPHBefore(state, from);
+        // Annihilate
+        State newState{state};
+        newState.removeParticleOn(from);
+
+        // How often does the creator have to swap places with another operator?
+        auto const nSwapCreate = countPHBefore(newState, to);
+        // Create
+        newState.addParticleOn(to);
+
+        return {-kappa * ((nSwapAnnihilate+nSwapCreate) % 2 == 0 ? +1.0 : -1.0),
+                newState};
     }
 };
 
