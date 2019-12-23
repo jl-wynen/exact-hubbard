@@ -85,6 +85,41 @@ struct Operator
 };
 
 
+template <typename... Operators>
+struct SumOperator : Operator<SumOperator<Operators...>>
+{
+    std::tuple<Operator<Operators>...> operators;
+
+
+    explicit constexpr SumOperator(Operator<Operators> const & ... ops)
+            : operators{ops...}
+    { }
+
+
+    void apply_implSingleOutparam(State const &state, SumState &out) const
+    {
+        if constexpr (sizeof...(Operators) > 0) {
+            doApply<sizeof...(Operators)-1>(state, out);
+        }
+    }
+
+
+private:
+    template <std::size_t Idx>
+    void doApply(State const &state, SumState &out) const
+    {
+        std::get<Idx>(operators).apply(state, out);
+
+        if constexpr (Idx > 0) {
+            doApply<Idx-1>(state, out);
+        }
+    }
+};
+
+template <typename... Operators>
+SumOperator(Operator<Operators> const & ...) -> SumOperator<Operators...>;
+
+
 struct ParticleCreator : Operator<ParticleCreator>
 {
     std::size_t site;
