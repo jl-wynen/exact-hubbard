@@ -179,21 +179,11 @@ struct ParticleHop : Operator<ParticleHop>
 
 private:
     [[nodiscard]] std::pair<double, State>
-            doHop(State const &state, std::size_t const from, std::size_t const to) const noexcept
+    doHop(State const &state, std::size_t const from, std::size_t const to) const noexcept
     {
-        // How often does the annihilator have to swap places with another operator?
-        auto const nSwapAnnihilate = countPHBefore(state, from);
-        // Annihilate
-        State newState{state};
-        newState.removeParticleOn(from);
-
-        // How often does the creator have to swap places with another operator?
-        auto const nSwapCreate = countPHBefore(newState, to);
-        // Create
-        newState.addParticleOn(to);
-
-        return {-kappa * ((nSwapAnnihilate+nSwapCreate) % 2 == 0 ? +1.0 : -1.0),
-                newState};
+        auto const [coefAnnihilate, aux] = ParticleAnnihilator{from}.apply(state);
+        auto const [coefCreate, newState] = ParticleCreator{to}.apply(aux);
+        return {-kappa * coefAnnihilate * coefCreate, newState};
     }
 };
 
