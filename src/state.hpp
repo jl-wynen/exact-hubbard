@@ -138,13 +138,7 @@ constexpr std::size_t size(State const &state) noexcept
 
 constexpr double dot(State const &a, State const &b) noexcept
 {
-    // manual because std::mismatch is not constexpr before c++20
-    for (size_t i = 0; i < a.size(); ++i) {
-        if (a[i] != b[i]) {
-            return 0.0;
-        }
-    }
-    return 1.0;
+    return a == b ? +1.0 : 0.0;
 }
 
 
