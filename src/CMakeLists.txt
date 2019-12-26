@@ -4,6 +4,7 @@ target_sources(exact_hubbard PUBLIC
         check_config.cpp
         io.hpp
         io.cpp
+        matrix.hpp
         operator.hpp
         state.hpp
         state.cpp
