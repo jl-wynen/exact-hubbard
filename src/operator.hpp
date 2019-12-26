@@ -226,6 +226,20 @@ struct LocalNumberOperator : Operator<LocalNumberOperator>
 };
 
 
+struct GlobalNumberOperator : Operator<GlobalNumberOperator>
+{
+    void apply_implSingleOutparam(State const &state, SumState &out) const
+    {
+        for (std::size_t site = 0; site < NSITES; ++site) {
+            if (double const coef = (state.hasParticleOn(site) ^ state.hasHoleOn(site)) ? 1.0 : 0.0;
+                    coef != 0.0) {
+                out.push(coef, state);
+            }
+        }
+    }
+};
+
+
 struct ParticleHop : Operator<ParticleHop>
 {
     using Operator<ParticleHop>::apply;
