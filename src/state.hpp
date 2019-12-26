@@ -181,6 +181,20 @@ public:
 };
 
 
+inline double dot(SumState const &a, SumState const &b) noexcept
+{
+    double res = 0.0;
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        auto const &[ca, sa] = a[i];
+        for (std::size_t j = 0; j < b.size(); ++j) {
+            auto const &[cb, sb] = b[j];
+            res += ca * cb * dot(sa, sb);
+        }
+    }
+    return res;
+}
+
+
 SumState fockspaceBasis();
 
 #endif //EXACT_HUBBARD_STATE_HPP
