@@ -209,17 +209,19 @@ struct HoleAnnihilator : Operator<HoleAnnihilator>
 /**
  * (n_x - tilde{n}_x)^2
  */
-struct NumberOperator : Operator<NumberOperator>
+struct LocalNumberOperator : Operator<LocalNumberOperator>
 {
     std::size_t site;
 
-    explicit constexpr NumberOperator(std::size_t const s) noexcept : site{s} { }
+    explicit constexpr LocalNumberOperator(std::size_t const s) noexcept : site{s} { }
 
 
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
-        out.push((state.hasParticleOn(site) ^ state.hasHoleOn(site)) ? 1.0 : 0.0,
-                 state);
+        if (double const coef = (state.hasParticleOn(site) ^ state.hasHoleOn(site)) ? 1.0 : 0.0;
+                coef != 0.0) {
+            out.push(coef, state);
+        }
     }
 };
 
