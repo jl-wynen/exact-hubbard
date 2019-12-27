@@ -21,6 +21,15 @@ constexpr static std::array nearestNeighbours
            Link{1, 2},
            Link{2, 0}};
 
+// Pentagon
+//constexpr static std::array nearestNeighbours
+//        = {Link{0, 1},
+//           Link{1, 2},
+//           Link{2, 3},
+//           Link{3, 4},
+//           Link{4, 0}};
+
+
 
 constexpr double kappa = 1.0;
 
