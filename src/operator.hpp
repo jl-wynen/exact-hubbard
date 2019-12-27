@@ -213,14 +213,14 @@ struct GlobalNumberOperator : Operator<GlobalNumberOperator>
 {
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
-        double coef = 0.0;
+        int number = 0;
         for (std::size_t site = 0; site < NSITES; ++site) {
             if ((state.hasParticleOn(site) ^ state.hasHoleOn(site)) != 0) {
-                coef += 1.0;
+                number++;
             }
         }
-        if (coef != 0.0) {
-            out.push(coef, state);
+        if (number != 0) {
+            out.push(U / 2.0 * static_cast<double>(number), state);
         }
     }
 };
