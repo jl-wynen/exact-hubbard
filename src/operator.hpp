@@ -211,7 +211,7 @@ struct HoleAnnihilator : Operator<HoleAnnihilator>
  * U/2 sum_x (n_x - tilde{n}_x)^2
  */
 template <bool USE_PREFACTOR=true>
-struct GlobalNumberOperator : Operator<GlobalNumberOperator<USE_PREFACTOR>>
+struct SquaredNumberOperator : Operator<SquaredNumberOperator<USE_PREFACTOR>>
 {
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
