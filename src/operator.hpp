@@ -210,7 +210,8 @@ struct HoleAnnihilator : Operator<HoleAnnihilator>
 /**
  * U/2 sum_x (n_x - tilde{n}_x)^2
  */
-struct GlobalNumberOperator : Operator<GlobalNumberOperator>
+template <bool USE_PREFACTOR=true>
+struct GlobalNumberOperator : Operator<GlobalNumberOperator<USE_PREFACTOR>>
 {
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
@@ -221,7 +222,12 @@ struct GlobalNumberOperator : Operator<GlobalNumberOperator>
             }
         }
         if (number != 0) {
-            out.push(U / 2.0 * static_cast<double>(number), state);
+            if constexpr (USE_PREFACTOR) {
+                out.push(U / 2.0 * static_cast<double>(number), state);
+            }
+            else {
+                out.push(static_cast<double>(number), state);
+            }
         }
     }
 };
