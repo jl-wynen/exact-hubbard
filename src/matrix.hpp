@@ -73,4 +73,6 @@ public:
 };
 
 
+using DMatrix = Matrix<double>;
+
 #endif //EXACT_HUBBARD_MATRIX_HPP
