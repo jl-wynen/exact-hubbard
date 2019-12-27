@@ -50,7 +50,7 @@ public:
     }
 
 
-    std::size_t totalIndex(std::size_t const row, std::size_t const col) noexcept
+    [[nodiscard]] std::size_t totalIndex(std::size_t const row, std::size_t const col) const noexcept
     {
         return row * ncol_ + col;
     }
