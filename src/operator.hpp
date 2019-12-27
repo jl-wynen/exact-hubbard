@@ -232,7 +232,7 @@ struct GlobalNumberOperator : Operator<GlobalNumberOperator>
     {
         double coef = 0.0;
         for (std::size_t site = 0; site < NSITES; ++site) {
-            if (state.hasParticleOn(site) ^ state.hasHoleOn(site) != 0) {
+            if ((state.hasParticleOn(site) ^ state.hasHoleOn(site)) != 0) {
                 coef += 1.0;
             }
         }
