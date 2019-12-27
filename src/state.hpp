@@ -178,6 +178,13 @@ public:
         states_.emplace_back(state);
         coefs_.push_back(coef);
     }
+
+
+    void clear() noexcept
+    {
+        coefs_.clear();
+        states_.clear();
+    }
 };
 
 
