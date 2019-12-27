@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "always_false.hpp"
+#include "matrix.hpp"
 #include "state.hpp"
 
 
@@ -308,5 +309,39 @@ private:
                 newState};
     }
 };
+
+
+/**
+ * M_{ij} = <i|O|j>
+ * @tparam T
+ * @param op
+ * @param basis
+ * @return
+ */
+template <typename T>
+Matrix<double> toMatrix(Operator<T> const &op, SumState const &basis)
+{
+    Matrix<double> mat{basis.size(), basis.size()};
+    SumState out;
+
+    for (std::size_t j = 0; j < mat.ncol(); ++j)
+    {
+        out.clear();
+        auto const &[coefj, statej] = basis[j];
+        op.apply(statej, out);
+
+        for (std::size_t i = 0; i < mat.nrow(); ++i) {
+            auto const &[coefi, statei] = basis[i];
+            double matelem = 0.0;
+            for (std::size_t k = 0; k < out.size(); ++k) {
+                auto const &[coefk, statek] = out[k];
+                matelem += dot(statek, statei) * coefk * coefi * coefj;
+            }
+            mat(i, j) = matelem;
+        }
+    }
+
+    return mat;
+}
 
 #endif //EXACT_HUBBARD_OPERATOR_HPP
