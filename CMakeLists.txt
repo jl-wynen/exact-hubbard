@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
 set(GCC_CLANG_WARNINGS
         -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
         -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual
