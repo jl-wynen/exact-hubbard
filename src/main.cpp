@@ -1,30 +1,21 @@
 #include <iostream>
-#include <iomanip>
 #include <fstream>
+#include <optional>
 
 #include "state.hpp"
 #include "io.hpp"
 #include "operator.hpp"
-#include "matrix.hpp"
-
-
-template <typename OP>
-void computeSpectrum(OP const &hamiltonian,
-                     SumState const &basis)
-{
-    auto const mat = toMatrix(hamiltonian, basis);
-    std::ofstream ofs("../hamiltonian.mat");
-    ofs << mat << '\n';
-};
+#include "linalg.hpp"
+#include "spectrum.hpp"
 
 
 int main()
 {
     auto const fockspace = fockspaceBasis();
 
-    SumOperator hamiltonian{ParticleHop{},
-                            HoleHop{},
-                            SquaredNumberOperator{}};
-
-    computeSpectrum(hamiltonian, fockspace);
+    auto const spectrum = computeSpectrum(fockspace);
+    std::ofstream ofs("../spectrum.dat");
+    for (auto const [n, e] : spectrum) {
+        ofs << n << ' ' << e << '\n';
+    }
 }
