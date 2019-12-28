@@ -26,20 +26,3 @@ std::ostream &operator<<(std::ostream &os, State const &state)
     os << state[state.size()-1] << '>';
     return os;
 }
-
-
-std::ostream &operator<<(std::ostream &os, DMatrix const &matrix)
-{
-    for (std::size_t i = 0; i < matrix.nrow(); ++i) {
-        for (std::size_t j = 0; j < matrix.ncol(); ++j) {
-            os << matrix(i, j);
-            if (j+1 < matrix.ncol()) {
-                os << ' ';
-            }
-        }
-        if (i+1 < matrix.nrow()) {
-            os << '\n';
-        }
-    }
-    return os;
-}

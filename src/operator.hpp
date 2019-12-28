@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "always_false.hpp"
-#include "matrix.hpp"
+#include "linalg.hpp"
 #include "state.hpp"
 
 
@@ -233,6 +233,28 @@ struct SquaredNumberOperator : Operator<SquaredNumberOperator<USE_PREFACTOR>>
 };
 
 
+/**
+ * sum_x (n_x - tilde{n}_x)
+ */
+struct TotalNumberOperator : Operator<TotalNumberOperator>
+{
+    void apply_implSingleOutparam(State const &state, SumState &out) const
+    {
+        int number = 0;
+        for (std::size_t site = 0; site < NSITES; ++site) {
+            number += static_cast<int>(state.hasParticleOn(site))
+                    - static_cast<int>(state.hasHoleOn(site));
+        }
+        if (number != 0) {
+            out.push(static_cast<double>(number), state);
+        }
+    }
+};
+
+
+/**
+ * prefactor: -kappa
+ */
 struct ParticleHop : Operator<ParticleHop>
 {
     using Operator<ParticleHop>::apply;
@@ -328,18 +350,18 @@ private:
  * @return
  */
 template <typename T>
-Matrix<double> toMatrix(Operator<T> const &op, SumState const &basis)
+DMatrix toMatrix(Operator<T> const &op, SumState const &basis)
 {
-    Matrix<double> mat{basis.size(), basis.size()};
+    DMatrix mat{basis.size(), basis.size()};
     SumState out;
 
-    for (std::size_t j = 0; j < mat.ncol(); ++j)
+    for (std::size_t j = 0; j < mat.columns(); ++j)
     {
         out.clear();
         auto const &[coefj, statej] = basis[j];
         op.apply(statej, out);
 
-        for (std::size_t i = 0; i < mat.nrow(); ++i) {
+        for (std::size_t i = 0; i < mat.rows(); ++i) {
             auto const &[coefi, statei] = basis[i];
             double matelem = 0.0;
             for (std::size_t k = 0; k < out.size(); ++k) {

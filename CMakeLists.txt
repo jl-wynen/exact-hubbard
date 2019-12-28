@@ -18,10 +18,11 @@ add_executable(exact_hubbard
         src/check_config.cpp
         src/io.hpp
         src/io.cpp
-        src/matrix.hpp
+        src/linalg.hpp
         src/operator.hpp
         src/state.hpp
-        src/state.cpp)
+        src/state.cpp
+        )
 
 set_target_properties(exact_hubbard PROPERTIES
         CXX_STANDARD 17
