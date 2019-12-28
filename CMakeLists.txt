@@ -29,3 +29,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
         OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(exact_hubbard PUBLIC -march=native)
 endif ()
+
+find_package(blaze REQUIRED)
+target_include_directories(exact_hubbard SYSTEM PUBLIC ${blaze_INCLUDE_DIRS})
+target_compile_options(exact_hubbard PUBLIC "${blaze_CXX_FLAGS}")
+target_link_libraries(exact_hubbard ${blaze_LIBRARIES})
+target_link_options(exact_hubbard PUBLIC "${blaze_LINKER_FLAGS}")
