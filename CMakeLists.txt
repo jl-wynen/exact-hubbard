@@ -12,8 +12,16 @@ set(GCC_EXTRA_WARNINGS
 
 project(exact_hubbard)
 
-add_executable(exact_hubbard)
-add_subdirectory(src)
+add_executable(exact_hubbard
+        src/main.cpp
+        src/always_false.hpp
+        src/check_config.cpp
+        src/io.hpp
+        src/io.cpp
+        src/matrix.hpp
+        src/operator.hpp
+        src/state.hpp
+        src/state.cpp)
 
 set_target_properties(exact_hubbard PROPERTIES
         CXX_STANDARD 17
