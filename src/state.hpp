@@ -173,6 +173,18 @@ public:
     }
 
 
+    [[nodiscard]] State const *states() const noexcept
+    {
+        return states_.data();
+    }
+
+
+    [[nodiscard]] State *states() noexcept
+    {
+        return states_.data();
+    }
+
+
     void push(double const coef, State const &state)
     {
         states_.emplace_back(state);
