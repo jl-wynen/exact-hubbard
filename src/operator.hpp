@@ -275,6 +275,9 @@ private:
 };
 
 
+/**
+ * prefactor: +kappa
+ */
 struct HoleHop : Operator<HoleHop>
 {
     using Operator<HoleHop>::apply;
@@ -311,7 +314,7 @@ private:
         // Create
         newState.addHoleOn(to);
 
-        return {-kappa * ((nSwapAnnihilate+nSwapCreate) % 2 == 0 ? +1.0 : -1.0),
+        return {kappa * ((nSwapAnnihilate+nSwapCreate) % 2 == 0 ? +1.0 : -1.0),
                 newState};
     }
 };
