@@ -236,18 +236,25 @@ struct SquaredNumberOperator : Operator<SquaredNumberOperator<USE_PREFACTOR>>
 /**
  * sum_x (n_x - tilde{n}_x)
  */
-struct TotalNumberOperator : Operator<TotalNumberOperator>
+struct ChargeOperator : Operator<ChargeOperator>
 {
     void apply_implSingleOutparam(State const &state, SumState &out) const
+    {
+        int const number = computeNumber(state);
+        if (number != 0) {
+            out.push(static_cast<double>(number), state);
+        }
+    }
+
+
+    [[nodiscard]] int computeNumber(State const &state) const noexcept
     {
         int number = 0;
         for (std::size_t site = 0; site < NSITES; ++site) {
             number += static_cast<int>(state.hasParticleOn(site))
-                    - static_cast<int>(state.hasHoleOn(site));
+                      - static_cast<int>(state.hasHoleOn(site));
         }
-        if (number != 0) {
-            out.push(static_cast<double>(number), state);
-        }
+        return number;
     }
 };
 
