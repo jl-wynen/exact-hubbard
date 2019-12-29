@@ -3,19 +3,23 @@
 #include <optional>
 
 #include "state.hpp"
-#include "io.hpp"
-#include "operator.hpp"
-#include "linalg.hpp"
 #include "spectrum.hpp"
 
 
-int main()
+void computeNonInteractingSpectrum()
 {
-    auto const fockspace = fockspaceBasis();
+    static_assert(U == 0.0);
 
+    auto const fockspace = fockspaceBasis();
     auto const spectrum = computeSpectrum(fockspace);
     std::ofstream ofs("../spectrum.dat");
-    for (auto const [n, e] : spectrum) {
-        ofs << n << ' ' << e << '\n';
+    ofs << "#  Q  E\n";
+    for (auto const [charge, energy] : spectrum) {
+        ofs << charge << ' ' << energy << '\n';
     }
+}
+
+int main()
+{
+    computeNonInteractingSpectrum();
 }

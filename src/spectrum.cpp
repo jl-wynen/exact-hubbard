@@ -60,7 +60,7 @@ namespace {
         blaze::syev(matrix, evals, 'N', 'U');
 
         for (double const eval : evals) {
-            out.emplace_back(charge, eval);
+            out.emplace_back(charge, eval / kappa);
         }
     }
 }
