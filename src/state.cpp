@@ -4,6 +4,37 @@
 
 
 namespace {
+    template <typename T>
+    void erase(std::vector<T> &vec, std::size_t const i)
+    {
+        vec.erase(vec.cbegin()
+                  + static_cast<typename decltype(vec.cbegin())::difference_type>(i));
+    }
+}
+
+
+void SumState::compress()
+{
+    for (std::size_t i = 0; i < coefs_.size(); ++i) {
+        // join elements with the same state
+        for (std::size_t j = coefs_.size()-1; j > i; --j) {
+            if (states_[i] == states_[j]) {
+                coefs_[i] += coefs_[j];
+                erase(coefs_, j);
+                erase(states_, j);
+            }
+        }
+
+        // erase elements with coefficient 0
+        if (std::abs(coefs_[i]) < 1e-13) {
+            erase(coefs_, i);
+            erase(states_, i);
+            --i;  // check the new element at this position next
+        }
+    }
+}
+
+namespace {
     constexpr std::optional<PH> increment(PH ph) noexcept
     {
         if (ph == PH::ph) {

@@ -197,6 +197,9 @@ public:
         coefs_.clear();
         states_.clear();
     }
+
+
+    void compress();
 };
 
 
