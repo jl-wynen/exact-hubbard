@@ -43,18 +43,11 @@ double computeCorrelatorNormalisation(Spectrum const &spectrum)
 class Correlators
 {
     std::vector<double> data_;
-    std::size_t nt_;
 
 public:
-    explicit Correlators(std::size_t const nt)
-            : data_(NSITES*NSITES*nt), nt_{nt}
+    explicit Correlators()
+            : data_(NSITES*NSITES*NT)
     { }
-
-
-    [[nodiscard]] std::size_t nt() const noexcept
-    {
-        return nt_;
-    }
 
 
     [[nodiscard]] std::size_t totalIndex(std::size_t const i,
@@ -63,8 +56,8 @@ public:
     {
         assert(i < NSITES);
         assert(j < NSITES);
-        assert(t < nt());
-        return (i*NSITES + j)*nt() + t;
+        assert(t < NT);
+        return (i*NSITES + j)*NT + t;
     }
 
 
@@ -88,7 +81,7 @@ public:
     {
         std::ofstream ofs{fname};
         ofs << "#~ correlator\n#  nx  nt\n"
-            << NSITES << ' ' << nt()
+            << NSITES << ' ' << NT
             << "\n#  U  kappa  beta\n"
             << U << ' ' << kappa << ' ' << beta
             << "\n#  data\n";
@@ -129,8 +122,7 @@ DMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
 }
 
 
-void computeInteractingCorrelators(std::size_t const nt=16,
-                                   fs::path const &fname="../correlators.dat")
+void computeInteractingCorrelators(fs::path const &fname="../correlators.dat")
 {
     auto const spectrum = Spectrum::compute(fockspaceBasis());
     double const normalisation = computeCorrelatorNormalisation(spectrum);
@@ -142,14 +134,14 @@ void computeInteractingCorrelators(std::size_t const nt=16,
         annihilatorElements.emplace_back(toEigenspaceMatrix(elementsFockspace, spectrum));
     }
 
-    Correlators corrs{nt};
+    Correlators corrs;
     for (std::size_t i = 0; i < NSITES; ++i) {
         DMatrix const &Ai = annihilatorElements[i];
         for (std::size_t j = 0; j < NSITES; ++j) {
             DMatrix const &Aj = annihilatorElements[j];
 
-            for (std::size_t t = 0; t < nt; ++t) {
-                double const tau = beta / static_cast<double>(nt - 1) * static_cast<double>(t);
+            for (std::size_t t = 0; t < NT; ++t) {
+                double const tau = beta / static_cast<double>(NT - 1) * static_cast<double>(t);
                 double accum = 0.0;
                 for (std::size_t alpha = 0; alpha < Ai.rows(); ++alpha) {
                     for (std::size_t gamma = 0; gamma < Ai.columns(); ++gamma) {
