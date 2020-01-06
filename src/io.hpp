@@ -12,4 +12,7 @@ std::ostream &operator<<(std::ostream &os, PH ph);
 
 std::ostream &operator<<(std::ostream &os, State const &state);
 
+
+std::ostream &operator<<(std::ostream &os, SumState const &states);
+
 #endif //EXACT_HUBBARD_IO_HPP
