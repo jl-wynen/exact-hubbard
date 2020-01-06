@@ -48,6 +48,20 @@ namespace {
     };
 
 
+    template <typename Vec>
+    SumState stateInBasis(Vec const &coefs, SumState const &basis)
+    {
+        SumState estate;
+        for (std::size_t i = 0; i < coefs.size(); ++i) {
+            if (std::abs(coefs[i]) > 1e-13) {
+                auto const [basisCoef, basisState] = basis[i];
+                estate.push(coefs[i] * basisCoef, basisState);
+            }
+        }
+        return estate;
+    }
+
+
     void computeSubSpectrum(SumState const &basis, int const charge, Spectrum &out, std::size_t &insertionOffset)
     {
         // compute spectrum
@@ -62,9 +76,10 @@ namespace {
         for (std::size_t i = 0; i < evals.size(); ++i) {
             out.charges[insertionOffset + i] = charge;
             out.energies[insertionOffset + i] = evals[i] / kappa;
+
+            // `syev` stores the eigenvectors row-wise in `matrix`.
+            out.eigenStates[insertionOffset + i] = stateInBasis(blaze::row(matrix, i), basis);
         }
-        blaze::submatrix(out.eigenVectors, insertionOffset, insertionOffset, evals.size(), evals.size())
-                = matrix;
 
         insertionOffset += evals.size();
     }
@@ -72,7 +87,7 @@ namespace {
 
 
 Spectrum::Spectrum(std::size_t size)
-        : charges(size), energies(size), eigenVectors(size, size)
+        : charges(size), energies(size), eigenStates(size)
 { }
 
 
@@ -100,7 +115,6 @@ Spectrum Spectrum::compute(SumState basis)
 std::size_t Spectrum::size() const noexcept
 {
     assert(charges.size() == energies.size());
-    assert(charges.size() == eigenVectors.rows());
-    assert(eigenVectors.rows() == eigenVectors.columns());
+    assert(charges.size() == eigenStates.size());
     return charges.size();
 }
