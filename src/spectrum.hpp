@@ -5,8 +5,24 @@
 #include <utility>
 #include <vector>
 
+#include "linalg.hpp"
 #include "state.hpp"
 
-std::vector<std::pair<int, double>> computeSpectrum(SumState basis);
+
+struct Spectrum
+{
+    IVector charges;
+    DVector energies;
+    DSparseMatrix eigenVectors;
+
+
+    explicit Spectrum(std::size_t size);
+
+
+    static Spectrum compute(SumState basis);
+
+
+    std::size_t size() const noexcept;
+};
 
 #endif //EXACT_HUBBARD_SPECTRUM_HPP

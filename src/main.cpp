@@ -11,11 +11,11 @@ void computeNonInteractingSpectrum()
     static_assert(U == 0.0);
 
     auto const fockspace = fockspaceBasis();
-    auto const spectrum = computeSpectrum(fockspace);
+    auto const spectrum = Spectrum::compute(fockspace);
     std::ofstream ofs("../spectrum.dat");
     ofs << "#  Q  E\n";
-    for (auto const [charge, energy] : spectrum) {
-        ofs << charge << ' ' << energy << '\n';
+    for (std::size_t i = 0; i < spectrum.size(); ++i) {
+        ofs << spectrum.charges[i] << ' ' << spectrum.energies[i] << '\n';
     }
 }
 

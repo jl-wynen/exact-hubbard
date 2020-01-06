@@ -1,7 +1,7 @@
 #include "spectrum.hpp"
 
-#include <blaze/math/DynamicVector.h>
 #include <blaze/math/lapack/syev.h>
+#include <blaze/math/Submatrix.h>
 
 #include "operator.hpp"
 
@@ -48,40 +48,59 @@ namespace {
     };
 
 
-    void computeSubSpectrum(SumState const &basis, int const charge,
-                            std::vector<std::pair<int, double>> &out)
+    void computeSubSpectrum(SumState const &basis, int const charge, Spectrum &out, std::size_t &insertionOffset)
     {
+        // compute spectrum
         SumOperator hamiltonian{ParticleHop{},
                                 HoleHop{},
                                 SquaredNumberOperator{}};
+        DMatrix matrix = toMatrix(hamiltonian, basis);
+        DVector evals(matrix.rows());
+        blaze::syev(matrix, evals, 'V', 'U');
 
-        auto matrix = toMatrix(hamiltonian, basis);
-        blaze::DynamicVector<double> evals(matrix.rows());
-        blaze::syev(matrix, evals, 'N', 'U');
-
-        for (double const eval : evals) {
-            out.emplace_back(charge, eval / kappa);
+        // store spectrum
+        for (std::size_t i = 0; i < evals.size(); ++i) {
+            out.charges[insertionOffset + i] = charge;
+            out.energies[insertionOffset + i] = evals[i] / kappa;
         }
+        blaze::submatrix(out.eigenVectors, insertionOffset, insertionOffset, evals.size(), evals.size())
+                = matrix;
+
+        insertionOffset += evals.size();
     }
 }
 
 
-std::vector<std::pair<int, double>> computeSpectrum(SumState basis)
+Spectrum::Spectrum(std::size_t size)
+        : charges(size), energies(size), eigenVectors(size, size)
+{ }
+
+
+Spectrum Spectrum::compute(SumState basis)
 {
-
+    // sort wrt. charge
     ChargeOperator Q{};
-
     std::sort(basis.states(), basis.states()+basis.size(),
               [&Q](State const &a, State const &b) {
                   return Q.computeNumber(a) < Q.computeNumber(b);
               });
 
-    EqualChargeIter eci{basis};
-    std::vector<std::pair<int, double>> spectrum;
-    while (not eci.finished()) {
+    // compute spectrum for given charge
+    Spectrum spectrum(basis.size());
+    std::size_t insertionOffset = 0;
+    for (EqualChargeIter eci{basis}; not eci.finished();) {
         auto const [subBasis, charge] = eci.next();
-        computeSubSpectrum(subBasis, charge, spectrum);
+        computeSubSpectrum(subBasis, charge, spectrum, insertionOffset);
     }
 
     return spectrum;
+}
+
+
+std::size_t Spectrum::size() const noexcept
+{
+    assert(charges.size() == energies.size());
+    assert(charges.size() == eigenVectors.rows());
+    assert(eigenVectors.rows() == eigenVectors.columns());
+    return charges.size();
 }
