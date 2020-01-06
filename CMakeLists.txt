@@ -41,6 +41,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     target_compile_options(exact_hubbard PUBLIC -march=native)
 endif ()
 
+target_link_libraries(exact_hubbard stdc++fs)
+
 find_package(blaze REQUIRED)
 target_include_directories(exact_hubbard SYSTEM PUBLIC ${blaze_INCLUDE_DIRS})
 target_compile_options(exact_hubbard PUBLIC "${blaze_CXX_FLAGS}")
