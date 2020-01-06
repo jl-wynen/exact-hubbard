@@ -47,8 +47,25 @@ constexpr double beta = 1.0;
 /// On-site interaction strength.
 constexpr double U = 1.0;
 
+
+/// Compute the number of lattice sites from nearestNeighbours.
+constexpr std::size_t computeNumSites()
+{
+    std::size_t nsites = 0;
+    for (auto const [a, b] : nearestNeighbours) {
+        if (a+1 > nsites) {
+            nsites = a + 1;
+        }
+        if (b+1 > nsites) {
+            nsites = b + 1;
+        }
+    }
+    return nsites;
+}
+
+
 /// Number of lattice sites.
-constexpr static std::size_t NSITES = nearestNeighbours.size();
+constexpr static std::size_t NSITES = computeNumSites();
 
 
 #endif //EXACT_HUBBARD_CONFIG_HPP
