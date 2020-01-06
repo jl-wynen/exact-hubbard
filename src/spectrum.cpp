@@ -78,7 +78,13 @@ namespace {
             out.energies[insertionOffset + i] = evals[i] / kappa;
 
             // `syev` stores the eigenvectors row-wise in `matrix`.
-            out.eigenStates[insertionOffset + i] = stateInBasis(blaze::row(matrix, i), basis);
+//            out.eigenStates[insertionOffset + i] = stateInBasis(blaze::row(matrix, i), basis);
+            for (std::size_t j = 0; j < matrix.columns(); ++j) {
+                if (double const coef = matrix(i, j); std::abs(coef) > 1e-13) {
+                    out.eigenStateIdxs[insertionOffset + i].push_back(insertionOffset + j);
+                    out.eigenStateCoeffs[insertionOffset + i].push_back(coef);
+                }
+            }
         }
 
         insertionOffset += evals.size();
@@ -86,24 +92,27 @@ namespace {
 }
 
 
-Spectrum::Spectrum(std::size_t size)
-        : charges(size), energies(size), eigenStates(size)
+Spectrum::Spectrum(SumState const &inBasis)
+        : charges(inBasis.size()), energies(inBasis.size()),
+          eigenStateIdxs(inBasis.size()), eigenStateCoeffs(inBasis.size()),
+          basis(inBasis)
 { }
 
 
-Spectrum Spectrum::compute(SumState basis)
+Spectrum Spectrum::compute(SumState const &inBasis)
 {
+    Spectrum spectrum(inBasis);
+
     // sort wrt. charge
     ChargeOperator Q{};
-    std::sort(basis.states(), basis.states()+basis.size(),
+    std::sort(spectrum.basis.states(), spectrum.basis.states() + spectrum.basis.size(),
               [&Q](State const &a, State const &b) {
                   return Q.computeNumber(a) < Q.computeNumber(b);
               });
 
     // compute spectrum for given charge
-    Spectrum spectrum(basis.size());
     std::size_t insertionOffset = 0;
-    for (EqualChargeIter eci{basis}; not eci.finished();) {
+    for (EqualChargeIter eci{spectrum.basis}; not eci.finished();) {
         auto const [subBasis, charge] = eci.next();
         computeSubSpectrum(subBasis, charge, spectrum, insertionOffset);
     }
@@ -115,6 +124,8 @@ Spectrum Spectrum::compute(SumState basis)
 std::size_t Spectrum::size() const noexcept
 {
     assert(charges.size() == energies.size());
-    assert(charges.size() == eigenStates.size());
+    assert(charges.size() == eigenStateIdxs.size());
+    assert(charges.size() == eigenStateCoeffs.size());
+    assert(charges.size() == basis.size());
     return charges.size();
 }

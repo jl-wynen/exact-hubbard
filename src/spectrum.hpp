@@ -9,20 +9,28 @@
 #include "state.hpp"
 
 
+/**
+ * eigenstates are normalised
+ * basis is / has to be normalised
+ */
 struct Spectrum
 {
     IVector charges;
     DVector energies;
-    std::vector<SumState> eigenStates;
+    std::vector<std::vector<std::size_t>> eigenStateIdxs;
+    std::vector<std::vector<double>> eigenStateCoeffs;
+    SumState basis;
 
 
-    explicit Spectrum(std::size_t size);
-
-
-    static Spectrum compute(SumState basis);
+    // ignores coeffs of basis
+    static Spectrum compute(SumState const &inBasis);
 
 
     [[nodiscard]] std::size_t size() const noexcept;
+
+
+private:
+    explicit Spectrum(SumState const &inBasis);
 };
 
 #endif //EXACT_HUBBARD_SPECTRUM_HPP
