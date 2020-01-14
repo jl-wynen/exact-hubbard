@@ -78,7 +78,6 @@ namespace {
             out.energies[insertionOffset + i] = evals[i] / kappa;
 
             // `syev` stores the eigenvectors row-wise in `matrix`.
-//            out.eigenStates[insertionOffset + i] = stateInBasis(blaze::row(matrix, i), basis);
             for (std::size_t j = 0; j < matrix.columns(); ++j) {
                 if (double const coef = matrix(i, j); std::abs(coef) > 1e-13) {
                     out.eigenStateIdxs[insertionOffset + i].push_back(insertionOffset + j);
