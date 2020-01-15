@@ -2,6 +2,7 @@
 #include <fstream>
 #include <optional>
 #include <filesystem>
+#include <chrono>
 
 #include "operator.hpp"
 #include "state.hpp"
@@ -158,6 +159,9 @@ void computeInteractingCorrelators(fs::path const &fname="../correlators.dat")
 
 int main()
 {
-   // computeNonInteractingSpectrum();
-   computeInteractingCorrelators();
+    auto const start = std::chrono::high_resolution_clock::now();
+    // computeNonInteractingSpectrum();
+    computeInteractingCorrelators();
+    auto const end = std::chrono::high_resolution_clock::now();
+    std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << '\n';
 }
