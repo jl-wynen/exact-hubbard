@@ -75,7 +75,7 @@ namespace {
         // store spectrum
         for (std::size_t i = 0; i < evals.size(); ++i) {
             out.charges[insertionOffset + i] = charge;
-            out.energies[insertionOffset + i] = evals[i] / kappa;
+            out.energies[insertionOffset + i] = evals[i];
 
             // `syev` stores the eigenvectors row-wise in `matrix`.
             for (std::size_t j = 0; j < matrix.columns(); ++j) {
