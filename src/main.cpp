@@ -18,8 +18,6 @@ namespace fs = std::filesystem;
  */
 void computeNonInteractingSpectrum(fs::path const &fname="../spectrum.dat")
 {
-    assert(U == 0.0);
-
     auto const fockspace = fockspaceBasis();
     auto const spectrum = Spectrum::compute(fockspace);
     std::ofstream ofs(fname);
