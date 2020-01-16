@@ -11,16 +11,8 @@
 namespace fs = std::filesystem;
 
 
-/**
- * Compute and store the non-interacting spectrum.
- * That is, compute the simultaneous eigen system of
- * the Hamiltonian and charge operator.
- * The result is written to a file named `fname`.
- */
-void computeNonInteractingSpectrum(fs::path const &fname="../spectrum.dat")
+void saveSpectrum(fs::path const &fname, Spectrum const &spectrum)
 {
-    auto const fockspace = fockspaceBasis();
-    auto const spectrum = Spectrum::compute(fockspace);
     std::ofstream ofs(fname);
     ofs << "#  Q  E\n";
     for (std::size_t i = 0; i < spectrum.size(); ++i) {
@@ -121,9 +113,8 @@ DMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
 }
 
 
-void computeInteractingCorrelators(fs::path const &fname="../correlators.dat")
+Correlators computeCorrelators(Spectrum const &spectrum)
 {
-    auto const spectrum = Spectrum::compute(fockspaceBasis());
     double const normalisation = computeCorrelatorNormalisation(spectrum);
 
     std::vector<DMatrix> annihilatorElements;
@@ -153,15 +144,32 @@ void computeInteractingCorrelators(fs::path const &fname="../correlators.dat")
         }
     }
 
-    corrs.save(fname);
+    return corrs;
 }
 
 
 int main()
 {
-    auto const start = std::chrono::high_resolution_clock::now();
-    // computeNonInteractingSpectrum();
-    computeInteractingCorrelators();
-    auto const end = std::chrono::high_resolution_clock::now();
-    std::cout << "Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << '\n';
+    std::cout << "Nx = " << NSITES << ",  Nt = " << NT << '\n'
+              << "beta = " << beta << ",  U = " << U << ",  kappa = " << kappa << '\n';
+
+    // spectrum
+    auto startTime = std::chrono::high_resolution_clock::now();
+    auto const spectrum = Spectrum::compute(fockspaceBasis());
+    auto endTime = std::chrono::high_resolution_clock::now();
+    std::cout << "Time to compute spectrum: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                      endTime-startTime
+              ).count() << "ms\n";
+    saveSpectrum("../spectrum.dat", spectrum);
+
+    // correlators
+    startTime = std::chrono::high_resolution_clock::now();
+    auto const correlators = computeCorrelators(spectrum);
+    endTime = std::chrono::high_resolution_clock::now();
+    std::cout << "Time to compute correlators: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                      endTime-startTime
+              ).count() << "ms\n";
+    correlators.save("../correlators.dat");
 }

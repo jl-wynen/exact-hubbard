@@ -24,7 +24,8 @@ add_executable(exact_hubbard
         src/operator.hpp
         src/state.hpp
         src/state.cpp
-        src/spectrum.cpp src/spectrum.hpp)
+        src/spectrum.cpp
+        src/spectrum.hpp)
 
 set_target_properties(exact_hubbard PROPERTIES
         CXX_STANDARD 17
