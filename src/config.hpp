@@ -23,11 +23,22 @@ using Link = std::pair<std::size_t, std::size_t>;
  * to be there as well.
  */
 
+// Two sites
+//[[maybe_unused]] constexpr static std::array nearestNeighbours
+//        = {Link{0, 1}};
+
 // Triangle
 [[maybe_unused]] constexpr static std::array nearestNeighbours
         = {Link{0, 1},
            Link{1, 2},
            Link{2, 0}};
+
+// Square, needs kappa=2
+//[[maybe_unused]] constexpr static std::array nearestNeighbours
+//        = {Link{0, 1},
+//           Link{0, 3},
+//           Link{1, 2},
+//           Link{2, 3}};
 
 // Pentagon
 //[[maybe_unused]] constexpr static std::array nearestNeighbours
