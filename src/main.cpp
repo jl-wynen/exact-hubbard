@@ -90,9 +90,9 @@ public:
  * \param spectrum Provides basis and eigenstates.
  * \return Matrix elements in eigenbasis.
  */
-DMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
+DSparseMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
 {
-    DMatrix res(matrix.rows(), matrix.columns());
+    DSparseMatrix res(matrix.rows(), matrix.columns());
 
     for (std::size_t alpha = 0; alpha < spectrum.size(); ++alpha) {
         for (std::size_t gamma = 0; gamma < spectrum.size(); ++gamma) {
@@ -105,7 +105,9 @@ DMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
                                      spectrum.eigenStateIdxs[gamma][y]);
                 }
             }
-            res(alpha, gamma) = elem;
+            if (blaze::abs(elem) > 1e-8) {
+                res(alpha, gamma) = elem;
+            }
         }
     }
 
@@ -117,18 +119,18 @@ Correlators computeCorrelators(Spectrum const &spectrum)
 {
     double const normalisation = computeCorrelatorNormalisation(spectrum);
 
-    std::vector<DMatrix> annihilatorElements;
+    std::vector<DSparseMatrix> annihilatorElements;
     for (std::size_t i = 0; i < NSITES; ++i) {
-        DMatrix const elementsFockspace = toMatrix(ParticleAnnihilator{i},
+        DSparseMatrix const elementsFockspace = toMatrix(ParticleAnnihilator{i},
                                                    spectrum.basis);
         annihilatorElements.emplace_back(toEigenspaceMatrix(elementsFockspace, spectrum));
     }
 
     Correlators corrs;
     for (std::size_t i = 0; i < NSITES; ++i) {
-        DMatrix const &Ai = annihilatorElements[i];
+        auto const &Ai = annihilatorElements[i];
         for (std::size_t j = 0; j < NSITES; ++j) {
-            DMatrix const &Aj = annihilatorElements[j];
+            auto const &Aj = annihilatorElements[j];
 
             for (std::size_t t = 0; t < NT; ++t) {
                 double const tau = beta / static_cast<double>(NT - 1) * static_cast<double>(t);
