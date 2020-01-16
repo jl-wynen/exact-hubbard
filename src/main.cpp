@@ -132,14 +132,11 @@ Correlators computeCorrelators(Spectrum const &spectrum)
 
             for (std::size_t t = 0; t < NT; ++t) {
                 double const tau = beta / static_cast<double>(NT - 1) * static_cast<double>(t);
-                double accum = 0.0;
-                for (std::size_t alpha = 0; alpha < Ai.rows(); ++alpha) {
-                    for (std::size_t gamma = 0; gamma < Ai.columns(); ++gamma) {
-                        accum += std::exp((tau-beta)*spectrum.energies[alpha] - tau*spectrum.energies[gamma])
-                                 * Ai(alpha, gamma) * Aj(alpha, gamma);
-                    }
-                }
-                corrs(i, j, t) = accum / normalisation;
+                corrs(i, j, t) = trace((expand(exp((tau-beta)*spectrum.energies), spectrum.size())
+                                        % Ai)
+                                       * (expand(exp(-tau*spectrum.energies), spectrum.size())
+                                          % trans(Aj)))
+                                 / normalisation;
             }
         }
     }
