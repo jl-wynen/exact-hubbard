@@ -41,9 +41,9 @@ public:
     { }
 
 
-    [[nodiscard]] std::size_t totalIndex(std::size_t const i,
-                                         std::size_t const j,
-                                         std::size_t const t) const noexcept
+    [[nodiscard]] static std::size_t totalIndex(std::size_t const i,
+                                                std::size_t const j,
+                                                std::size_t const t) noexcept
     {
         assert(i < NSITES);
         assert(j < NSITES);
