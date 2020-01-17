@@ -2,6 +2,11 @@
 #define EXACT_HUBBARD_LINALG_HPP
 
 
+/**
+ * Include blaze headers for required vector/matrix types
+ * and define convenience aliases.
+ */
+
 #include <blaze/math/CompressedMatrix.h>
 #include <blaze/math/DynamicMatrix.h>
 #include <blaze/math/DynamicVector.h>
