@@ -10,22 +10,37 @@ def linestyle(i):
 
 
 def get_irreps(kappa):
-    hopping = np.array([[0, 1, 0, 1],
-                        [1, 0, 1, 0],
-                        [0, 1, 0, 1],
-                        [1, 0, 1, 0]]) * kappa
-    return np.linalg.eigh(hopping)[1]
+    """
+    Compute the lattice irreps.
+    """
+
+    # Square
+    # hopping = np.array([[0, 1, 0, 1],
+    #                     [1, 0, 1, 0],
+    #                     [0, 1, 0, 1],
+    #                     [1, 0, 1, 0]])
+
+    # Triangle
+    hopping = np.array([[0, 1, 1],
+                        [1, 0, 1],
+                        [1, 1, 0]])
+
+    return np.linalg.eigh(hopping * kappa)[1]
 
 
 def project_to_irreps(corrs, params):
+    """
+    Project correlators from position space to the irrep basis.
+    """
     irreps = get_irreps(params["kappa"])
-    res = np.empty_like(corrs)
-    for t in range(corrs.shape[2]):
-        res[:, :, t] = irreps @ corrs[:, :, t] @ irreps.T
-    return res
+    return np.einsum("ij,jkt,kl->ilt", irreps.T, corrs, irreps)
 
 
 def load_correlators(fname):
+    """
+    Load correlators and meta data stored in a file.
+    """
+
     with open(fname, "r") as f:
         assert f.readline() == "#~ correlator\n"
         assert f.readline() == "#  nx  nt\n"
@@ -38,15 +53,11 @@ def load_correlators(fname):
     return corrs, dict(U=U, kappa=kappa, beta=beta)
 
 
-def load_toms_correlators(nx, params):
-    fname = Path("/home/jl/Uni/PhD/cns/ergodicity/plotting/figures/exactCorrelators") \
-            / "4site_square.exact.U4.beta4.dat"
-            # / f"{nx}site.exact.U{int(params['U'])}.beta{int(params['beta'])}.dat"
-    data = np.loadtxt(fname, skiprows=1).T
-    return data[0], data[1:]
-
-
 def plot_all_in_one(corrs, params):
+    """
+    Plot all correlators in one plot.
+    """
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_xlabel(r"$\kappa \tau$")
@@ -59,8 +70,12 @@ def plot_all_in_one(corrs, params):
     fig.tight_layout()
 
 
-def plot_grid(corrs, params, tomtau, tomcorrs):
-    fig = plt.figure()
+def plot_grid(corrs, params):
+    """
+    Plot a grid of all correlators.
+    """
+
+    fig = plt.figure(figsize=(11, 10))
     fig.suptitle(rf"$U/\kappa = {params['U']/params['kappa']} \qquad \kappa \beta = {params['kappa']*params['beta']}$")
 
     x = np.linspace(0, params["beta"], corrs.shape[2], endpoint=True) * params["kappa"]
@@ -69,8 +84,6 @@ def plot_grid(corrs, params, tomtau, tomcorrs):
         ax.set_xlabel(r"$\kappa \tau$")
         ax.set_ylabel(rf"$C_{{{i},{j}}}(\tau)$")
         ax.plot(x, corrs[i, j])
-        if i == j:
-            ax.plot(tomtau, tomcorrs[i], ls=":")
         ax.set_yscale("log")
 
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -80,9 +93,7 @@ def main():
     corrs, params = load_correlators("../correlators.dat")
     corrs = project_to_irreps(corrs, params)
 
-    tomtau, tomcorrs, = load_toms_correlators(corrs.shape[0], params)
-
-    plot_grid(corrs, params, tomtau, tomcorrs)
+    plot_grid(corrs, params)
     plt.show()
 
 
