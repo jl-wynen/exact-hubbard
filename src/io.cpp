@@ -1,5 +1,8 @@
 #include "io.hpp"
 
+#include <fstream>
+
+
 
 std::ostream &operator<<(std::ostream &os, PH ph)
 {
@@ -38,4 +41,28 @@ std::ostream &operator<<(std::ostream &os, SumState const &states)
         }
     }
     return os;
+}
+
+
+void saveSpectrum(fs::path const &fname, Spectrum const &spectrum)
+{
+    std::ofstream ofs(fname);
+    ofs << "#  Q  E\n";
+    for (std::size_t i = 0; i < spectrum.size(); ++i) {
+        ofs << spectrum.charges[i] << ' ' << spectrum.energies[i] << '\n';
+    }
+}
+
+
+void saveCorrelators(fs::path const &fname, Correlators const &correlators)
+{
+    std::ofstream ofs{fname};
+    ofs << "#~ correlator\n#  nx  nt\n"
+        << NSITES << ' ' << NT
+        << "\n#  U  kappa  beta\n"
+        << U << ' ' << kappa << ' ' << beta
+        << "\n#  data\n";
+    for (auto const x : correlators.data) {
+        ofs << x << ' ';
+    }
 }
