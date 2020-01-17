@@ -32,12 +32,12 @@ namespace {
             }
 
             SumState res;
-            currentCharge_ = Q_.computeNumber(basis_[currentI_].second);
+            currentCharge_ = Q_.computeCharge(basis_[currentI_].second);
             res.push(basis_[currentI_].first, basis_[currentI_].second);
             currentI_++;
 
             for (; currentI_ < basis_.size()
-                   and Q_.computeNumber(basis_[currentI_].second) == currentCharge_;
+                   and Q_.computeCharge(basis_[currentI_].second) == currentCharge_;
                    ++currentI_)
             {
                 res.push(basis_[currentI_].first, basis_[currentI_].second);
@@ -106,7 +106,7 @@ Spectrum Spectrum::compute(SumState const &inBasis)
     ChargeOperator Q{};
     std::sort(spectrum.basis.states(), spectrum.basis.states() + spectrum.basis.size(),
               [&Q](State const &a, State const &b) {
-                  return Q.computeNumber(a) < Q.computeNumber(b);
+                  return Q.computeCharge(a) < Q.computeCharge(b);
               });
 
     // compute spectrum for given charge

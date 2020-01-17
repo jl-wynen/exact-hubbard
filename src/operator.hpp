@@ -1,6 +1,14 @@
 #ifndef EXACT_HUBBARD_OPERATOR_HPP
 #define EXACT_HUBBARD_OPERATOR_HPP
 
+/** \file
+ * \brief Define physical operators.
+ *
+ * Every operator should derive from the base template `Operator` using CRTP.
+ * The derived class must implement
+ *   `void apply_implSingleOutparam(State const &state, SumState &out)`
+ * which takes a single state, applies the operator, and appends the output to `out`.
+ */
 
 #include <cstdint>
 #include <utility>
@@ -10,6 +18,7 @@
 #include "state.hpp"
 
 
+/// Count the number of particles *and* holes before and excluding the given site.
 constexpr int countPHBefore(State const &state, std::size_t const site) noexcept
 {
     assert(site < state.size());
@@ -21,6 +30,7 @@ constexpr int countPHBefore(State const &state, std::size_t const site) noexcept
 }
 
 
+/// Check whether a type has a member function `apply_implSingleOutparam`.
 template <typename T, typename = void>
 struct hasApplyImplSingleOutparam : std::false_type {};
 
@@ -31,24 +41,32 @@ struct hasApplyImplSingleOutparam<T,
         : std::true_type {};
 
 
+/// Base template for operators.
+/**
+ * Operators implementations should inherit from this class using CRTP.
+ */
 template <typename T>
 struct Operator
 {
+    /// The type of the operator implementation.
     using Derived = T;
 
 
+    /// Convert `*this` to a reference to `Derived`.
     [[nodiscard]] constexpr Derived &asDerived() noexcept
     {
         return static_cast<Derived&>(*this);
     }
 
 
+    /// Convert `*this` to a reference to `Derived`.
     [[nodiscard]] constexpr Derived const &asDerived() const noexcept
     {
         return static_cast<Derived const&>(*this);
     }
 
 
+    /// Apply the operator to a single state and append the result to `out`.
     void apply(State const &state, SumState &out) const
     {
         if constexpr (hasApplyImplSingleOutparam<Derived>::value) {
@@ -61,6 +79,7 @@ struct Operator
     }
 
 
+    /// Apply the operator to all states in `in` and append the results to `out`.
     void apply(SumState const &in, SumState &out) const
     {
         std::size_t outa = out.size();
@@ -75,6 +94,7 @@ struct Operator
     }
 
 
+    /// Apply the operator to all states in `states` and return a new SumState with the results.
     [[nodiscard]] SumState apply(SumState const &states) const
     {
         SumState out;
@@ -86,17 +106,30 @@ struct Operator
 };
 
 
+/// The sum of multiple operators.
+/**
+ * Use e.g. as
+ * ```{.cpp}
+SumOperator hamiltonian{ParticleHop{},
+                        HoleHop{},
+                        SquaredNumberOperator{}};
+   ```
+ * `hamiltonian` can then be applied like any other operator.
+ */
 template <typename... Operators>
 struct SumOperator : Operator<SumOperator<Operators...>>
 {
+    /// Stores all summands (sub operators).
     std::tuple<Operator<Operators>...> operators;
 
 
+    /// Construct from one or more summands.
     explicit constexpr SumOperator(Operator<Operators> const & ... ops)
             : operators{ops...}
     { }
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         if constexpr (sizeof...(Operators) > 0) {
@@ -106,6 +139,7 @@ struct SumOperator : Operator<SumOperator<Operators...>>
 
 
 private:
+    /// Recursively apply sub operators.
     template <std::size_t Idx>
     void doApply(State const &state, SumState &out) const
     {
@@ -117,18 +151,24 @@ private:
     }
 };
 
+
+/// Deduction guide for SumOperator.
 template <typename... Operators>
 SumOperator(Operator<Operators> const & ...) -> SumOperator<Operators...>;
 
 
+/// Creator for a single particle at a given site.
 struct ParticleCreator : Operator<ParticleCreator>
 {
+    /// Lattice site the creator operates on.
     std::size_t site;
 
 
+    /// Specify the site at which particles are created.
     explicit constexpr ParticleCreator(std::size_t const s) noexcept : site{s} { }
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         if (state.hasParticleOn(site)) {
@@ -142,14 +182,18 @@ struct ParticleCreator : Operator<ParticleCreator>
 };
 
 
+/// Annihilator for a single particle at a given site.
 struct ParticleAnnihilator : Operator<ParticleAnnihilator>
 {
+    /// Lattice site the annihilator operates on.
     std::size_t site;
 
 
+    /// Specify the site at which particles are annihilated.
     explicit constexpr ParticleAnnihilator(std::size_t const s) noexcept : site{s} { }
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         if (not state.hasParticleOn(site)) {
@@ -163,14 +207,18 @@ struct ParticleAnnihilator : Operator<ParticleAnnihilator>
 };
 
 
+/// Creator for a single hole at a given site.
 struct HoleCreator : Operator<HoleCreator>
 {
+    /// Lattice site the creator operates on.
     std::size_t site;
 
 
+    /// Specify the site at which particles are created.
     explicit constexpr HoleCreator(std::size_t const s) noexcept : site{s} { }
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         if (state.hasHoleOn(site)) {
@@ -185,14 +233,18 @@ struct HoleCreator : Operator<HoleCreator>
 };
 
 
+/// Annihilator for a single hole at a given site.
 struct HoleAnnihilator : Operator<HoleAnnihilator>
 {
+    /// Lattice site the annihilator operates on.
     std::size_t site;
 
 
+    /// Specify the site at which holes are annihilated.
     explicit constexpr HoleAnnihilator(std::size_t const s) noexcept : site{s} { }
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         if (not state.hasHoleOn(site)) {
@@ -208,11 +260,14 @@ struct HoleAnnihilator : Operator<HoleAnnihilator>
 
 
 /**
- * U/2 sum_x (n_x - tilde{n}_x)^2
+ * \f$ U/2 \sum_x (n_x - \tilde{n}_x)^2 \f$
+ * Where \f$ n_x \f$ and \f$ \tilde{n} \f$ count particles and holes at site x.
+ * \tparam USE_PREFACTOR If `true`, multiply result by U/2 as shown in equation above.
  */
 template <bool USE_PREFACTOR=true>
 struct SquaredNumberOperator : Operator<SquaredNumberOperator<USE_PREFACTOR>>
 {
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         int number = 0;
@@ -234,20 +289,22 @@ struct SquaredNumberOperator : Operator<SquaredNumberOperator<USE_PREFACTOR>>
 
 
 /**
- * sum_x (n_x - tilde{n}_x)
+ * \f$ \sum_x (n_x - \tilde{n}_x) \f$
  */
 struct ChargeOperator : Operator<ChargeOperator>
 {
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
-        int const number = computeNumber(state);
+        int const number = computeCharge(state);
         if (number != 0) {
             out.push(static_cast<double>(number), state);
         }
     }
 
 
-    [[nodiscard]] int computeNumber(State const &state) const noexcept
+    /// Compute the charge of a state.
+    [[nodiscard]] int computeCharge(State const &state) const noexcept
     {
         int number = 0;
         for (std::size_t site = 0; site < NSITES; ++site) {
@@ -260,13 +317,20 @@ struct ChargeOperator : Operator<ChargeOperator>
 
 
 /**
- * prefactor: -kappa
+ * Hopping operator for particles.
+ * Annihilates and creates particles according to the hopping matrix
+ * as parameterised by nearestNeighbours and kappa.
+ * The operator can be written as
+ * \f[
+   -\kappa \sum_{\langle x, y\rangle}\, a_x^\dagger a_y
+ * \f]
  */
 struct ParticleHop : Operator<ParticleHop>
 {
     using Operator<ParticleHop>::apply;
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         for (auto const [a, b] : nearestNeighbours) {
@@ -274,7 +338,7 @@ struct ParticleHop : Operator<ParticleHop>
                 auto const [coef, newState] = doHop(state, a, b);
                 out.push(coef, newState);
             }
-            // Can use else here because we can never hop to _and_ from a site.
+            // Can use else here because we can never hop to *and* from a site.
             else if (state.hasParticleOn(b) and not state.hasParticleOn(a)) {
                 auto const [coef, newState] = doHop(state, b, a);
                 out.push(coef, newState);
@@ -305,13 +369,20 @@ private:
 
 
 /**
- * prefactor: +kappa
+ * Hopping operator for particles.
+ * Annihilates and creates particles according to the hopping matrix
+ * as parameterised by nearestNeighbours and kappa.
+ * The operator can be written as
+ * \f[
+   \kappa \sum_{\langle x, y\rangle}\, b_x^\dagger b_y
+ * \f]
  */
 struct HoleHop : Operator<HoleHop>
 {
     using Operator<HoleHop>::apply;
 
 
+    /// Implementation of apply.
     void apply_implSingleOutparam(State const &state, SumState &out) const
     {
         for (auto const [a, b] : nearestNeighbours) {
@@ -319,7 +390,7 @@ struct HoleHop : Operator<HoleHop>
                 auto const [coef, newState] = doHop(state, a, b);
                 out.push(coef, newState);
             }
-                // Can use else here because we can never hop to _and_ from a site.
+                // Can use else here because we can never hop to *and* from a site.
             else if (state.hasHoleOn(b) and not state.hasHoleOn(a)) {
                 auto const [coef, newState] = doHop(state, b, a);
                 out.push(coef, newState);
@@ -350,11 +421,11 @@ private:
 
 
 /**
- * M_{ij} = <i|O|j>
- * @tparam T
- * @param op
- * @param basis
- * @return
+ * Compute all matrix elements of an operator.
+
+ * @param op %Operator \f$ O \f$.
+ * @param basis Each state in `basis` is a basis state \f$ |i\rangle \f$
+ * @return \f$ M_{ij} = \langle i | O | j \rangle \f$
  */
 template <typename T>
 DMatrix toMatrix(Operator<T> const &op, SumState const &basis)
@@ -365,11 +436,15 @@ DMatrix toMatrix(Operator<T> const &op, SumState const &basis)
     for (std::size_t j = 0; j < mat.columns(); ++j)
     {
         out.clear();
+        // |j>
         auto const &[coefj, statej] = basis[j];
+        // out = op |j>
         op.apply(statej, out);
 
         for (std::size_t i = 0; i < mat.rows(); ++i) {
+            // |i>
             auto const &[coefi, statei] = basis[i];
+            // <i|op|j>
             double matelem = 0.0;
             for (std::size_t k = 0; k < out.size(); ++k) {
                 auto const &[coefk, statek] = out[k];
