@@ -7,35 +7,48 @@
 
 
 namespace {
+    /// Iterate over states and return groups of states that have the same charge.
     class EqualChargeIter
     {
-        SumState basis_;
+        /// The states to iterate over, sorted according to charge.
+        SumState const &basis_;
+        /// Current location in basis_.
         std::size_t currentI_ = 0;
+        /// Charge of current state.
         int currentCharge_ = 0;
+        /// Compute charges with this operator.
         ChargeOperator Q_{};
 
 
     public:
-        explicit EqualChargeIter(SumState basis) : basis_{std::move(basis)} { }
+        /**
+         *  Construct for a basis.
+         * \attention The basis must be sorted according to charge.
+         */
+        explicit EqualChargeIter(SumState const &basis) : basis_{basis} { }
 
 
+        /// Return `true` if iteration has finished.
         [[nodiscard]] bool finished() const noexcept
         {
             return currentI_ == basis_.size();
         }
 
 
+        /// Return the next set of states and charge.
         std::pair<SumState, int> next()
         {
             if (currentI_ == basis_.size()) {
-                throw std::runtime_error("EqualChargeIter is out of states");
+                throw std::runtime_error("EqualChargeIter ran out of states");
             }
 
             SumState res;
+            // process first element manually to get new charge
             currentCharge_ = Q_.computeCharge(basis_[currentI_].second);
             res.push(basis_[currentI_].first, basis_[currentI_].second);
             currentI_++;
 
+            // iterate over following elements with the same charge
             for (; currentI_ < basis_.size()
                    and Q_.computeCharge(basis_[currentI_].second) == currentCharge_;
                    ++currentI_)
@@ -48,6 +61,7 @@ namespace {
     };
 
 
+    /// Construct a state from coefficients and a basis.
     template <typename Vec>
     SumState stateInBasis(Vec const &coefs, SumState const &basis)
     {
@@ -62,7 +76,15 @@ namespace {
     }
 
 
-    void computeSubSpectrum(SumState const &basis, int const charge, Spectrum &out, std::size_t &insertionOffset)
+    /**
+     * Compute the spectrum for a given charge.
+     *
+     * Stores the result in `spectrum[insertionOffset+i]`
+     * for `0 <= i < basis.size()`.
+     * Increases `insertionOffset` to point past the inserted values.
+     */
+    void computeSubSpectrum(SumState const &basis, int const charge,
+                            Spectrum &out, std::size_t &insertionOffset)
     {
         // compute spectrum
         SumOperator hamiltonian{ParticleHop{},
@@ -86,6 +108,7 @@ namespace {
             }
         }
 
+        // continue inserting after the new elements
         insertionOffset += evals.size();
     }
 }
