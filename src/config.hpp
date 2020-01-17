@@ -56,7 +56,7 @@ constexpr double kappa = 1.0;
 constexpr double beta = 1.0;
 
 /// On-site interaction strength.
-constexpr double U = 4.0;
+constexpr double U = 1.0;
 
 /// Number of time slices.
 constexpr std::size_t NT = 32;
