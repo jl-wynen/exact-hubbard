@@ -33,4 +33,16 @@ private:
     explicit Spectrum(SumState const &inBasis);
 };
 
+
+
+/**
+ * Turn matrix elements for an operator in basis `spectrum.basis`
+ * into matrix elements in the basis of eigenvectors.
+ * \param matrix Matrix elements in `spectrum.basis`.
+ * \param spectrum Provides basis and eigenstates.
+ * \return Matrix elements in eigenbasis.
+ */
+DSparseMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum);
+
+
 #endif //EXACT_HUBBARD_SPECTRUM_HPP

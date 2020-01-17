@@ -128,3 +128,28 @@ std::size_t Spectrum::size() const noexcept
     assert(charges.size() == basis.size());
     return charges.size();
 }
+
+
+DSparseMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
+{
+    DSparseMatrix res(matrix.rows(), matrix.columns());
+
+    for (std::size_t alpha = 0; alpha < spectrum.size(); ++alpha) {
+        for (std::size_t gamma = 0; gamma < spectrum.size(); ++gamma) {
+            double elem = 0.0;
+            for (std::size_t x = 0; x < spectrum.eigenStateIdxs[alpha].size(); ++x) {
+                for (std::size_t y = 0; y < spectrum.eigenStateIdxs[gamma].size(); ++y) {
+                    elem += spectrum.eigenStateCoeffs[alpha][x]
+                            * spectrum.eigenStateCoeffs[gamma][y]
+                            * matrix(spectrum.eigenStateIdxs[alpha][x],
+                                     spectrum.eigenStateIdxs[gamma][y]);
+                }
+            }
+            if (blaze::abs(elem) > 1e-8) {
+                res(alpha, gamma) = elem;
+            }
+        }
+    }
+
+    return res;
+}
