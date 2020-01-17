@@ -36,3 +36,7 @@ cmake-build-*
 
 # IDE settings
 .idea
+
+# Data files
+*.dat
+*.h5
