@@ -1,6 +1,9 @@
 #ifndef EXACT_HUBBARD_SPECTRUM_HPP
 #define EXACT_HUBBARD_SPECTRUM_HPP
 
+/** \file
+ * \brief Spectrum storage and computation.
+ */
 
 #include <utility>
 #include <vector>

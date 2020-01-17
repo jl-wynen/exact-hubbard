@@ -1,6 +1,9 @@
 #ifndef EXACT_HUBBARD_STATE_HPP
 #define EXACT_HUBBARD_STATE_HPP
 
+/** \file
+ * \brief Classes State and SumState.
+ */
 
 #include <array>
 #include <cassert>

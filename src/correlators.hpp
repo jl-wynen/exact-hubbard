@@ -1,6 +1,9 @@
 #ifndef EXACT_HUBBARD_CORRELATORS_HPP
 #define EXACT_HUBBARD_CORRELATORS_HPP
 
+/** \file
+ * \brief Correlator storage and computation.
+ */
 
 #include <cassert>
 #include <vector>

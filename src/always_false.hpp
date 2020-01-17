@@ -1,6 +1,9 @@
 #ifndef EXACT_HUBBARD_ALWAYS_FALSE_HPP
 #define EXACT_HUBBARD_ALWAYS_FALSE_HPP
 
+/** \file
+ * \brief Type alwaysFalse.
+ */
 
 #include <type_traits>
 

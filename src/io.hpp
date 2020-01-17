@@ -1,6 +1,9 @@
 #ifndef EXACT_HUBBARD_IO_HPP
 #define EXACT_HUBBARD_IO_HPP
 
+/** \file
+ * \brief I/O routines.
+ */
 
 #include <filesystem>
 #include <ostream>

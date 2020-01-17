@@ -1,8 +1,9 @@
 #ifndef EXACT_HUBBARD_CONFIG_HPP
 #define EXACT_HUBBARD_CONFIG_HPP
 
-/**
- * Configure the program.
+/** \file
+ * \brief Configure the program.
+ *
  * Specify parameters and lattice geometry in this file and compile.
  */
 

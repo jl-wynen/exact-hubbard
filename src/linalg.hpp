@@ -2,8 +2,8 @@
 #define EXACT_HUBBARD_LINALG_HPP
 
 
-/**
- * Include blaze headers for required vector/matrix types
+/** \file
+ * \brief Include blaze headers for required vector/matrix types
  * and define convenience aliases.
  */
 
