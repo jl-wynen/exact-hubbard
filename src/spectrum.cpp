@@ -130,13 +130,26 @@ std::size_t Spectrum::size() const noexcept
 }
 
 
+/*
+ * Given eigenstates
+ *   |alpha> = sum_x alpha_x |x>
+ *   |gamma> = sum_y gamma_y |y>
+ * where |x>, |y> are states in spectrum.basis,
+ * the matrix elements of operator A are
+ *   A^{alpha,gamma} = sum_x sum_y <x| alpha_x A gamma_y |y>
+ *                   = sum_x sum_y alpha_x gamma_y <x|A|y>
+ *                   = sum_x sum_y alpha_x gamma_y A^{xy}
+ */
 DSparseMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum)
 {
     DSparseMatrix res(matrix.rows(), matrix.columns());
 
+    // Iterate over elements of result A^{alpha,gamma}
     for (std::size_t alpha = 0; alpha < spectrum.size(); ++alpha) {
         for (std::size_t gamma = 0; gamma < spectrum.size(); ++gamma) {
             double elem = 0.0;
+
+            // Iterate over basis states
             for (std::size_t x = 0; x < spectrum.eigenStateIdxs[alpha].size(); ++x) {
                 for (std::size_t y = 0; y < spectrum.eigenStateIdxs[gamma].size(); ++y) {
                     elem += spectrum.eigenStateCoeffs[alpha][x]
@@ -145,6 +158,7 @@ DSparseMatrix toEigenspaceMatrix(DMatrix const &matrix, Spectrum const &spectrum
                                      spectrum.eigenStateIdxs[gamma][y]);
                 }
             }
+
             if (blaze::abs(elem) > 1e-8) {
                 res(alpha, gamma) = elem;
             }
