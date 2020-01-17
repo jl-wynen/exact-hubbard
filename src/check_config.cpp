@@ -1,6 +1,10 @@
 #include "config.hpp"
 
 
+/**
+ * Compiling this file checks whether settings in config.hpp are consistent.
+ */
+
 static_assert(NSITES > 0, "There must be more than 0 sites.");
 
 
