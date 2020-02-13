@@ -25,8 +25,9 @@
 SumState state;
 auto const &indexes = spectrum.eigenStateIdxs[i];
 auto const &coeffs = spectrum.eigenStateCoeffs[i];
-for (std::size_t j = 0; j < indexes.size(); ++i) {
-    state.push(coeffs[j], spectrum.basis[indexes[j]]);
+for (std::size_t j = 0; j < indexes.size(); ++j) {
+    auto const [c, e] = spectrum.basis[indexes[j]];
+    state.push(coeffs[j]*c, e);
 }
  * ```
  */
