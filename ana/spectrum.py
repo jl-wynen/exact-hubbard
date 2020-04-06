@@ -18,8 +18,6 @@ def collect_degenerates(spectrum):
 
 
 def main():
-    plt.style.use("ana/aiphilight.mplstyle")
-
     spectrum = np.loadtxt("spectrum.dat")
 
     fig = plt.figure()
