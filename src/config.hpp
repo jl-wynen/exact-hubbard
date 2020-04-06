@@ -29,10 +29,10 @@ using Link = std::pair<std::size_t, std::size_t>;
 //        = {Link{0, 1}};
 
 // Triangle
-[[maybe_unused]] constexpr static std::array nearestNeighbours
-        = {Link{0, 1},
-           Link{1, 2},
-           Link{2, 0}};
+// [[maybe_unused]] constexpr static std::array nearestNeighbours
+//         = {Link{0, 1},
+//            Link{1, 2},
+//            Link{2, 0}};
 
 // Square, needs kappa=2
 //[[maybe_unused]] constexpr static std::array nearestNeighbours
@@ -41,8 +41,17 @@ using Link = std::pair<std::size_t, std::size_t>;
 //           Link{1, 2},
 //           Link{2, 3}};
 
-// Pentagon
-//[[maybe_unused]] constexpr static std::array nearestNeighbours
+// Tetrahedron
+[[maybe_unused]] constexpr static std::array nearestNeighbours
+       = {Link{0, 1},
+          Link{0, 2},
+          Link{0, 3},
+          Link{1, 2},
+          Link{1, 3},
+          Link{2, 3}};
+
+// // Pentagon
+// [[maybe_unused]] constexpr static std::array nearestNeighbours
 //        = {Link{0, 1},
 //           Link{1, 2},
 //           Link{2, 3},
@@ -54,13 +63,13 @@ using Link = std::pair<std::size_t, std::size_t>;
 constexpr double kappa = 1.0;
 
 /// Inverse temperature.
-constexpr double beta = 1.0;
+constexpr double beta = 6.0;
 
 /// On-site interaction strength.
-constexpr double U = 1.0;
+constexpr double U = 3.0;
 
 /// Number of time slices.
-constexpr std::size_t NT = 32;
+constexpr std::size_t NT = 32*4;
 
 
 /// Compute the number of lattice sites from nearestNeighbours.

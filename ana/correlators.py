@@ -18,10 +18,16 @@ def get_irreps(kappa):
     #                     [0, 1, 0, 1],
     #                     [1, 0, 1, 0]])
 
-    # Triangle
-    hopping = np.array([[0, 1, 1],
-                        [1, 0, 1],
-                        [1, 1, 0]])
+    # # Triangle
+    # hopping = np.array([[0, 1, 1],
+    #                     [1, 0, 1],
+    #                     [1, 1, 0]])
+
+    #  tetrahedron
+    hopping = np.array([[0, 1, 1, 1],
+                        [1, 0, 1, 1],
+                        [1, 1, 0, 1],
+                        [1, 1, 1, 0]])
 
     return np.linalg.eigh(hopping * kappa)[1]
 
